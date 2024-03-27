@@ -1,12 +1,13 @@
+import gleam/string
 import gleeunit
 import gleeunit/should
+import gleambc/lexer.{Number, tokenise}
 
 pub fn main() {
   gleeunit.main()
 }
 
-// gleeunit test functions end in `_test`
-pub fn hello_world_test() {
-  1
-  |> should.equal(1)
+pub fn tokenise_test() {
+  tokenise(string.to_graphemes("123456789"))
+  |> should.equal(#(Number(123_456_789), 9))
 }

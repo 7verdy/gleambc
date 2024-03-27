@@ -26,6 +26,16 @@ pub fn tokenise(input: List(String)) -> #(Token, Int) {
   }
 }
 
+pub fn token_to_string(token: #(Token, Int)) -> String {
+  case token {
+    #(Number(n), len) ->
+      string.concat(["Number(", int.to_string(n), ") -> ", int.to_string(len)])
+    #(Operator(op), _) -> string.concat(["Operator(", op, ")"])
+    #(Parenthesis(True), _) -> "("
+    #(Parenthesis(False), _) -> ")"
+  }
+}
+
 fn get_number(input: List(String), current_number: List(Int)) -> #(Token, Int) {
   let first_digit = case list.at(input, 0) {
     Ok(c) ->
@@ -52,7 +62,7 @@ fn get_number(input: List(String), current_number: List(Int)) -> #(Token, Int) {
       Number(
         current_number
         |> list.reverse
-        |> list.fold(0, fn(x, acc) { x + acc }),
+        |> list.fold(0, fn(x, acc) { x * 10 + acc }),
       ),
       list.length(current_number),
     )

@@ -8,7 +8,63 @@ pub fn parse(input: String) -> Int {
   let string_list = string.to_graphemes(input)
   let #(values, operators) = get_stacks(string_list, [], [])
 
+  let #(values, operators) = reduce_mult_div(values, operators, [], 0)
+
   compute(values, operators)
+}
+
+fn reduce_mult_div(
+  values: List(Int),
+  operators: List(lexer.Token),
+  new_ops: List(lexer.Token),
+  index: Int,
+) -> #(List(Int), List(lexer.Token)) {
+  case operators {
+    [] -> #(values, new_ops)
+    [Operator("*"), ..rest] -> {
+      let right: Int = case list.at(values, index + 1) {
+        Ok(x) -> x
+        Error(_) -> 0
+      }
+      let left: Int = case list.at(values, index) {
+        Ok(x) -> x
+        Error(_) -> 0
+      }
+
+      let before_values = list.split(values, index).0
+      let after_values = list.drop(values, index + 2)
+
+      let product = left * right
+
+      let new_values = list.concat([before_values, [product], after_values])
+      let reset = list.concat([new_ops, rest])
+
+      reduce_mult_div(new_values, reset, [], 0)
+    }
+    [Operator("/"), ..rest] -> {
+      let right: Int = case list.at(values, index + 1) {
+        Ok(x) -> x
+        Error(_) -> 0
+      }
+      let left: Int = case list.at(values, index) {
+        Ok(x) -> x
+        Error(_) -> 0
+      }
+
+      let before_values = list.split(values, index).0
+      let after_values = list.drop(values, index + 2)
+
+      let difference = left / right
+
+      let new_values = list.concat([before_values, [difference], after_values])
+      let reset = list.concat([new_ops, rest])
+
+      reduce_mult_div(new_values, reset, [], 0)
+    }
+    [current, ..rest] -> {
+      reduce_mult_div(values, rest, [current, ..new_ops], index + 1)
+    }
+  }
 }
 
 fn get_stacks(

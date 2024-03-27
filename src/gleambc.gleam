@@ -1,8 +1,12 @@
+import gleam/int
 import gleam/io
 import gleam/string
-import gleambc/lexer.{token_to_string, tokenise}
+import gleambc/parser.{parse}
 
 pub fn main() {
-  let input = string.to_graphemes("123456789")
-  io.print(token_to_string(tokenise(input)))
+  let input = "11 + 22 - 3"
+  let result = parse(input)
+  io.println(
+    string.concat(["Input: '", input, "' | Result: ", int.to_string(result)]),
+  )
 }

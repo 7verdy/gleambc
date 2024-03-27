@@ -7,6 +7,7 @@ pub type Token {
   Number(value: Int)
   Operator(name: String)
   Parenthesis(open: Bool)
+  Whitespace
 }
 
 pub fn tokenise(input: List(String)) -> #(Token, Int) {
@@ -14,6 +15,7 @@ pub fn tokenise(input: List(String)) -> #(Token, Int) {
     Ok(c) -> c
     _ -> ""
   }
+
   case first_char {
     "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ->
       get_number(result.unwrap(list.pop(input, fn(_) { True }), #("", [])).1, [
@@ -22,6 +24,7 @@ pub fn tokenise(input: List(String)) -> #(Token, Int) {
     "+" | "-" | "*" | "/" -> get_operator(first_char)
     "(" | ")" -> get_parenthesis(first_char)
     "" -> #(Operator("end"), 0)
+    " " | "\t" | "\n" -> #(Whitespace, 1)
     _ -> #(Operator("unknown"), 1)
   }
 }
@@ -31,8 +34,9 @@ pub fn token_to_string(token: #(Token, Int)) -> String {
     #(Number(n), len) ->
       string.concat(["Number(", int.to_string(n), ") -> ", int.to_string(len)])
     #(Operator(op), _) -> string.concat(["Operator(", op, ")"])
-    #(Parenthesis(True), _) -> "("
-    #(Parenthesis(False), _) -> ")"
+    #(Parenthesis(True), _) -> "Open Parenthesis"
+    #(Parenthesis(False), _) -> "Close Parenthesis"
+    #(Whitespace, _) -> "Whitespace"
   }
 }
 

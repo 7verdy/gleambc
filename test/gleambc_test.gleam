@@ -35,19 +35,39 @@ pub fn tokenise_operator_test() {
   |> should.equal(#(Operator("/"), 1))
 }
 
-pub fn parser_precedence_test() {
+pub fn parser_add_test() {
   parse("1 + 2")
   |> should.equal(3)
 
+  parse("1 + 2 + 3")
+  |> should.equal(6)
+}
+
+pub fn parser_sub_test() {
+  parse("3 - 2")
+  |> should.equal(1)
+
+  parse("3 - 2 - 1")
+  |> should.equal(0)
+
+  parse("3 - 2 - 2")
+  |> should.equal(-1)
+}
+
+pub fn parser_mult_test() {
   parse("2 * 3")
   |> should.equal(6)
 
-  parse("1 + 2 * 3")
-  |> should.equal(7)
+  parse("2 * 3 * 4")
+  |> should.equal(24)
+}
 
-  parse("3 * 5 + 2 * 5")
-  |> should.equal(25)
+pub fn parser_div_test() {
+  parse("6 / 3")
+  |> should.equal(2)
+}
 
+pub fn parse_all_test() {
   parse("5 + 2 * 2 - 6 / 3")
   |> should.equal(7)
 

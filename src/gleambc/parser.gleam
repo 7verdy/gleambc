@@ -1,3 +1,4 @@
+import gleam/int
 import gleam/io
 import gleam/list
 import gleam/result
@@ -62,7 +63,8 @@ fn reduce_mult_div(
       reduce_mult_div(new_values, reset, [], 0)
     }
     [current, ..rest] -> {
-      reduce_mult_div(values, rest, [current, ..new_ops], index + 1)
+      let new_ops = list.concat([new_ops, [current]])
+      reduce_mult_div(values, rest, new_ops, index + 1)
     }
   }
 }

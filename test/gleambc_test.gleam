@@ -65,6 +65,23 @@ pub fn parser_mult_test() {
 pub fn parser_div_test() {
   parse("6 / 3")
   |> should.equal(2)
+
+  parse("6 / 3 / 2")
+  |> should.equal(1)
+}
+
+pub fn parser_parenthesis_test() {
+  parse("(1 + 2) * 2")
+  |> should.equal(6)
+
+  parse("(1 + 1) * 2")
+  |> should.equal(4)
+
+  parse("2 * (1 + 1)")
+  |> should.equal(4)
+
+  parse("2 * (1 + 1) * 2")
+  |> should.equal(8)
 }
 
 pub fn parse_all_test() {
@@ -73,4 +90,10 @@ pub fn parse_all_test() {
 
   parse("18 / 3 - 2 * 2 + 3")
   |> should.equal(5)
+
+  parse("(5 + 2) * 2 - 6 / 3")
+  |> should.equal(12)
+
+  parse("5 + 2 * (6 - 2) / 3")
+  |> should.equal(7)
 }

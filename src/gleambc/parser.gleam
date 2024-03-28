@@ -1,4 +1,3 @@
-import gleam/int
 import gleam/io
 import gleam/list
 import gleam/result
@@ -9,9 +8,65 @@ pub fn parse(input: String) -> Int {
   let string_list = string.to_graphemes(input)
   let #(values, operators) = get_stacks(string_list, [], [])
 
+  let #(values, operators) = reduce_parenthesis(values, operators)
+
   let #(values, operators) = reduce_mult_div(values, operators, [], 0)
 
   compute(values, operators)
+}
+
+fn reduce_parenthesis(values: List(Int), operators: List(lexer.Token)) {
+  // ) -> #(List(Int), List(lexer.Token)) {
+  let open_par = case list.find(operators, fn(op) { op == Operator("(") }) {
+    Ok(op) -> op
+    Error(_) -> Operator("end")
+  }
+  case open_par {
+    Operator("end") -> #(values, operators)
+    _ -> {
+      let close_par = case
+        list.find(operators, fn(op) { op == Operator(")") })
+      {
+        Ok(op) -> op
+        Error(_) -> Operator("end")
+      }
+      case close_par {
+        Operator("end") -> #(values, operators)
+        _ -> {
+          let open_index = get_index(operators, open_par)
+          let close_index = get_index(operators, close_par)
+
+          let before_values = list.split(values, open_index).0
+          let after_values = list.drop(values, close_index)
+
+          let between_values =
+            list.take(list.drop(values, open_index), close_index - open_index)
+
+          let between_operators =
+            list.take(
+              list.drop(operators, open_index + 1),
+              close_index - open_index - 1,
+            )
+
+          let before_operators = list.split(operators, open_index).0
+          let after_operators = list.drop(operators, close_index + 1)
+
+          let #(par_values, par_operators) =
+            reduce_mult_div(between_values, between_operators, [], 0)
+
+          let value_in_par = compute(par_values, par_operators)
+
+          let new_values =
+            list.concat([before_values, [value_in_par], after_values])
+
+          reduce_parenthesis(
+            new_values,
+            list.concat([before_operators, after_operators]),
+          )
+        }
+      }
+    }
+  }
 }
 
 fn reduce_mult_div(
@@ -89,9 +144,11 @@ fn get_stacks(
     #(Number(n), len) -> {
       get_stacks(list.drop(input, len), [n, ..values], operators)
     }
-    // Ignore for now
-    #(Parenthesis(_), _) -> {
-      get_stacks(list.drop(input, 1), values, operators)
+    #(Parenthesis(True), _) -> {
+      get_stacks(list.drop(input, 1), values, [Operator("("), ..operators])
+    }
+    #(Parenthesis(False), _) -> {
+      get_stacks(list.drop(input, 1), values, [Operator(")"), ..operators])
     }
   }
 }
@@ -137,6 +194,24 @@ fn compute(values: List(Int), operators: List(lexer.Token)) -> Int {
     _ -> {
       io.println("Unknown operator")
       0
+    }
+  }
+}
+
+fn get_index(list: List(_), item: _) -> Int {
+  case list {
+    [] -> -1
+    [x, ..xs] -> {
+      case x == item {
+        True -> 0
+        False -> {
+          let index = get_index(xs, item)
+          case index {
+            -1 -> -1
+            _ -> index + 1
+          }
+        }
+      }
     }
   }
 }

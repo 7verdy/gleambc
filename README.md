@@ -1,6 +1,8 @@
 # gleambc
 
 GleamBC is an attempt at making a calculator in Gleam.
+This project was only tackled as a means to learn more about Gleam's syntax, stdlib and how functional programming languages work.
+This should not be considered as a fully-working project.
 
 ## Development
 

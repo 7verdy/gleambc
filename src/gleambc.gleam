@@ -14,11 +14,6 @@ pub fn main() {
   let result = parse(expression)
 
   io.println(
-    string.concat([
-      "Input: '",
-      expression,
-      "' | Result: ",
-      int.to_string(result),
-    ]),
+    "Input: '" <> expression <> "' | Result: " <> int.to_string(result),
   )
 }

@@ -32,8 +32,8 @@ pub fn tokenise(input: List(String)) -> #(Token, Int) {
 pub fn token_to_string(token: #(Token, Int)) -> String {
   case token {
     #(Number(n), len) ->
-      string.concat(["Number(", int.to_string(n), ") -> ", int.to_string(len)])
-    #(Operator(op), _) -> string.concat(["Operator(", op, ")"])
+      "Number(" <> int.to_string(n) <> ") -> " <> int.to_string(len)
+    #(Operator(op), _) -> "Operator(" <> op <> ")"
     #(Parenthesis(True), _) -> "Open Parenthesis"
     #(Parenthesis(False), _) -> "Close Parenthesis"
     #(Whitespace, _) -> "Whitespace"

@@ -1,7 +1,7 @@
 import gleam/int
 import gleam/list
-import gleam/result
-import gleam/string
+import gleam/pair
+import gleam/result.{unwrap}
 
 pub type Token {
   Number(value: Int)
@@ -17,10 +17,10 @@ pub fn tokenise(input: List(String)) -> #(Token, Int) {
   }
 
   case first_char {
-    "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ->
-      get_number(result.unwrap(list.pop(input, fn(_) { True }), #("", [])).1, [
-        result.unwrap(int.parse(first_char), 0),
-      ])
+    "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" -> {
+      let rest = list.drop(input, 1)
+      get_number(rest, [unwrap(int.parse(first_char), 0)])
+    }
     "+" | "-" | "*" | "/" -> get_operator(first_char)
     "(" | ")" -> get_parenthesis(first_char)
     "" -> #(Operator("end"), 0)
@@ -41,28 +41,16 @@ pub fn token_to_string(token: #(Token, Int)) -> String {
 }
 
 fn get_number(input: List(String), current_number: List(Int)) -> #(Token, Int) {
-  let first_digit = case list.at(input, 0) {
-    Ok(c) ->
-      case int.parse(c) {
-        Ok(n) -> n
-        _ -> -1
-      }
-    _ -> -1
-  }
+  let first =
+    list.at(input, 0)
+    |> result.try(int.parse)
 
-  case first_digit {
-    0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 -> {
-      let pop = case list.pop(input, fn(_) { True }) {
-        Ok(rest) -> rest
-        _ -> #("", [])
-      }
-      let new_number = case int.parse(pop.0) {
-        Ok(n) -> n
-        _ -> -1
-      }
-      get_number(pop.1, [new_number, ..current_number])
+  case first {
+    Ok(digit) -> {
+      let rest = list.drop(input, 1)
+      get_number(rest, [digit, ..current_number])
     }
-    _ -> #(
+    Error(_) -> #(
       Number(
         current_number
         |> list.reverse

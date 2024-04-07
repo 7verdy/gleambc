@@ -10,29 +10,29 @@ pub fn main() {
 
 pub fn tokenise_number_test() {
   tokenise(string.to_graphemes("123456789"))
-  |> should.equal(#(Number(123_456_789), 9))
+  |> should.equal(Number(123_456_789, 9))
 }
 
 pub fn tokenise_parenthesis_test() {
   tokenise(string.to_graphemes("("))
-  |> should.equal(#(Parenthesis(True), 1))
+  |> should.equal(Parenthesis(True))
 
   tokenise(string.to_graphemes(")"))
-  |> should.equal(#(Parenthesis(False), 1))
+  |> should.equal(Parenthesis(False))
 }
 
 pub fn tokenise_operator_test() {
   tokenise(string.to_graphemes("+"))
-  |> should.equal(#(Operator("+"), 1))
+  |> should.equal(Operator("+"))
 
   tokenise(string.to_graphemes("-"))
-  |> should.equal(#(Operator("-"), 1))
+  |> should.equal(Operator("-"))
 
   tokenise(string.to_graphemes("*"))
-  |> should.equal(#(Operator("*"), 1))
+  |> should.equal(Operator("*"))
 
   tokenise(string.to_graphemes("/"))
-  |> should.equal(#(Operator("/"), 1))
+  |> should.equal(Operator("/"))
 }
 
 pub fn parser_add_test() {

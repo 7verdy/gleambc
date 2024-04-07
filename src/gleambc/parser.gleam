@@ -16,7 +16,6 @@ pub fn parse(input: String) -> Int {
 }
 
 fn reduce_parenthesis(values: List(Int), operators: List(lexer.Token)) {
-  // ) -> #(List(Int), List(lexer.Token)) {
   let open_par = case list.find(operators, fn(op) { op == Operator("(") }) {
     Ok(op) -> op
     Error(_) -> Operator("end")
@@ -131,23 +130,23 @@ fn get_stacks(
 ) -> #(List(Int), List(lexer.Token)) {
   let token = tokenise(input)
   case token {
-    #(Operator("end"), _) -> #(
+    Operator("end") -> #(
       values
         |> list.reverse,
       operators
         |> list.reverse,
     )
-    #(Whitespace, _) -> get_stacks(list.drop(input, 1), values, operators)
-    #(Operator(op), _) -> {
+    Whitespace -> get_stacks(list.drop(input, 1), values, operators)
+    Operator(op) -> {
       get_stacks(list.drop(input, 1), values, [Operator(op), ..operators])
     }
-    #(Number(n), len) -> {
+    Number(n, len) -> {
       get_stacks(list.drop(input, len), [n, ..values], operators)
     }
-    #(Parenthesis(True), _) -> {
+    Parenthesis(True) -> {
       get_stacks(list.drop(input, 1), values, [Operator("("), ..operators])
     }
-    #(Parenthesis(False), _) -> {
+    Parenthesis(False) -> {
       get_stacks(list.drop(input, 1), values, [Operator(")"), ..operators])
     }
   }

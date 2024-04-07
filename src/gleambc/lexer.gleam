@@ -1,16 +1,15 @@
 import gleam/int
 import gleam/list
-import gleam/pair
 import gleam/result.{unwrap}
 
 pub type Token {
-  Number(value: Int)
+  Number(value: Int, length: Int)
   Operator(name: String)
   Parenthesis(open: Bool)
   Whitespace
 }
 
-pub fn tokenise(input: List(String)) -> #(Token, Int) {
+pub fn tokenise(input: List(String)) -> Token {
   let first_char = case list.at(input, 0) {
     Ok(c) -> c
     _ -> ""
@@ -23,15 +22,15 @@ pub fn tokenise(input: List(String)) -> #(Token, Int) {
     }
     "+" | "-" | "*" | "/" -> get_operator(first_char)
     "(" | ")" -> get_parenthesis(first_char)
-    "" -> #(Operator("end"), 0)
-    " " | "\t" | "\n" -> #(Whitespace, 1)
-    _ -> #(Operator("unknown"), 1)
+    "" -> Operator("end")
+    " " | "\t" | "\n" -> Whitespace
+    _ -> Operator("unknown")
   }
 }
 
 pub fn token_to_string(token: #(Token, Int)) -> String {
   case token {
-    #(Number(n), len) ->
+    #(Number(n, _), len) ->
       "Number(" <> int.to_string(n) <> ") -> " <> int.to_string(len)
     #(Operator(op), _) -> "Operator(" <> op <> ")"
     #(Parenthesis(True), _) -> "Open Parenthesis"
@@ -40,7 +39,7 @@ pub fn token_to_string(token: #(Token, Int)) -> String {
   }
 }
 
-fn get_number(input: List(String), current_number: List(Int)) -> #(Token, Int) {
+fn get_number(input: List(String), current_number: List(Int)) -> Token {
   let first =
     list.at(input, 0)
     |> result.try(int.parse)
@@ -50,31 +49,30 @@ fn get_number(input: List(String), current_number: List(Int)) -> #(Token, Int) {
       let rest = list.drop(input, 1)
       get_number(rest, [digit, ..current_number])
     }
-    Error(_) -> #(
+    Error(_) ->
       Number(
         current_number
-        |> list.reverse
-        |> list.fold(0, fn(x, acc) { x * 10 + acc }),
-      ),
-      list.length(current_number),
-    )
+          |> list.reverse
+          |> list.fold(0, fn(x, acc) { x * 10 + acc }),
+        list.length(current_number),
+      )
   }
 }
 
-fn get_operator(input: String) -> #(Token, Int) {
+fn get_operator(input: String) -> Token {
   case input {
-    "+" -> #(Operator("+"), 1)
-    "-" -> #(Operator("-"), 1)
-    "*" -> #(Operator("*"), 1)
-    "/" -> #(Operator("/"), 1)
-    _ -> #(Operator("unknown"), 1)
+    "+" -> Operator("+")
+    "-" -> Operator("-")
+    "*" -> Operator("*")
+    "/" -> Operator("/")
+    _ -> Operator("unknown")
   }
 }
 
-fn get_parenthesis(input: String) -> #(Token, Int) {
+fn get_parenthesis(input: String) -> Token {
   case input {
-    "(" -> #(Parenthesis(True), 1)
-    ")" -> #(Parenthesis(False), 1)
-    _ -> #(Operator("unknown"), 1)
+    "(" -> Parenthesis(True)
+    ")" -> Parenthesis(False)
+    _ -> Operator("unknown")
   }
 }
